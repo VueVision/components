@@ -1,15 +1,15 @@
 <template>
   <Teleport to="body">
-    <div :class="{'modal': !isModalClosed}" class="relative">
+    <div :class="{ 'modal': !isModalClosed }" class="relative">
       <transition name="fade">
         <div v-show="!isModalClosed" class="backdrop" @click="toggleModal"></div>
       </transition>
       <transition @enter="modalAnimation[position].enter" @leave="modalAnimation[position].leave">
         <div v-show="modelValue" class="modal-container bg-base rounded shadow-lg" v-bind="$attrs"
-             :class="[modalPosition[position], $attrs.class]">
+          :class="[modalPosition[position], $attrs.class]">
           <header v-if="haveHeader" class="flex items-center justify-between p-6 shadow">
             <slot name="header"></slot>
-            <icon name="ic:round-close"  @click="toggleModal" class="ml-auto cursor-pointer hover:text-primary-500"></icon>
+            <icon name="ic:round-close" @click="toggleModal" class="ml-auto cursor-pointer hover:text-primary-500"></icon>
           </header>
           <main class="p-5 flex flex-col grow">
             <slot></slot>
@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 import { modalPosition } from '~/constants';
 
-import { animate } from "motion"
+import { animate, spring } from "motion"
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -48,13 +48,15 @@ const modalAnimation = {
       isModalClosed.value = false
       animate(element, {
         opacity: [0.5, 1],
-        transform: ['translate(0, 10%)', 'translate(0, 0)'],
-      }).finished.then(done)
+        y: ['30%', '0%']
+      },
+        { easing: spring({ stiffness: 700, damping: 60, mass: 3 }) }
+      ).finished.then(done)
     },
     leave: (element, done) => {
       animate(element, {
         opacity: [1, 0],
-        scale: [1, 0.8],
+        scale: 0.8,
       }).finished.then(() => {
         isModalClosed.value = true
         done()
@@ -65,12 +67,14 @@ const modalAnimation = {
     enter: (element, done) => {
       isModalClosed.value = false
       animate(element, {
-        transform: ['translate(-50%, 100%)', 'translate(-50%, 0)']
-      }).finished.then(done)
+        y: ['100%', '0%'],
+      },
+        { easing: spring({ stiffness: 700, damping: 60, mass: 2 }) }
+      ).finished.then(done)
     },
     leave: (element, done) => {
       animate(element, {
-        transform: ['translate(-50%, 0)', 'translate(-50%, 100%)']
+        y: ['0%', '100%'],
       }).finished.then(() => {
         isModalClosed.value = true
         done()
@@ -81,12 +85,16 @@ const modalAnimation = {
     enter: (element, done) => {
       isModalClosed.value = false
       animate(element, {
-        transform: ['translate(50%, 0)', 'translate(0, 0)']
-      }).finished.then(done)
+        y: ['0%', '0%'],
+        x: ['100%', '0%'],
+      },
+        { easing: spring({ stiffness: 700, damping: 60, mass: 2 }) }
+      ).finished.then(done)
     },
     leave: (element, done) => {
       animate(element, {
-        transform: ['translate(0, 0)', 'translate(100%, 0)']
+        y: ['0%', '0%'],
+        x: ['0%', '100%'],
       }).finished.then(() => {
         isModalClosed.value = true
         done()
@@ -97,12 +105,16 @@ const modalAnimation = {
     enter: (element, done) => {
       isModalClosed.value = false
       animate(element, {
-        transform: ['translate(-100%, 0)', 'translate(0, 0)']
-      }).finished.then(done)
+        y: ['0%', '0%'],
+        x: ['-100%', '0%'],
+      },
+        { easing: spring({ stiffness: 700, damping: 60, mass: 2 }) }
+      ).finished.then(done)
     },
     leave: (element, done) => {
       animate(element, {
-        transform: ['translate(0, 0)', 'translate(-100%, 0)']
+        y: ['0%', '0%'],
+        x: ['0%', '-100%'],
       }).finished.then(() => {
         isModalClosed.value = true
         done()
@@ -118,10 +130,11 @@ export default {
 }
 </script>
 <style scoped>
-.b-modal .modal-container{
+.b-modal .modal-container {
   transform-origin: center;
 }
-.bottom-modal .modal-container{
+
+.bottom-modal .modal-container {
   bottom: 0;
   transform-origin: top;
 }
@@ -140,14 +153,15 @@ export default {
 
 
 }
+
 .modal .backdrop {
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.45);
-  }
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.45);
+}
 
 .fade-y-bottom-enter-from,
 .fade-y-bottom-leave-to {
@@ -189,7 +203,7 @@ export default {
   top: 1%;
   bottom: 1%;
   right: 15px;
-  border-radius: 15px 15px 15px 15px;
+  border-radius: 15px;
 }
 
 .right-modal main {
@@ -206,7 +220,7 @@ export default {
   top: 1%;
   bottom: 1%;
   left: 15px;
-  border-radius: 15px 15px 15px 15px;
+  border-radius: 15px;
 }
 
 .left-modal main {
